@@ -1,0 +1,79 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "build_id": {
+      "type": "integer"
+    },
+    "owner_name": {
+      "type": "string"
+    },
+    "package_name": {
+      "type": "string"
+    },
+    "task_id": {
+      "type": ["integer", "null"]
+    },
+    "creation_time": {
+      "type": "string"
+    },
+    "start_time": {
+      "type": ["string", "null"]
+    },
+    "creation_event_id": {
+      "type": "integer"
+    },
+    "start_ts": {
+      "type": ["number", "null"]
+    },
+    "epoch": {
+      "type": ["integer", "null"]
+    },
+    "completion_ts": {
+      "type": ["number", "null"]
+    },
+    "name": {
+      "type": "string"
+    },
+    "completion_time": {
+      "type": "string"
+    },
+    "state": {
+      "type": "integer"
+    },
+    "version": {
+      "type": "string"
+    },
+    "volume_name": {
+      "type": "string"
+    },
+    "release": {
+      "type": "string"
+    },
+    "creation_ts": {
+      "type": ["number", "null"]
+    },
+    "owner_id": {
+      "type": "integer"
+    },
+    "package_id": {
+      "type": "integer"
+    },
+    "volume_id": {
+      "type": "integer"
+    },
+    "nvr": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "build_id",
+    "package_name",
+    "task_id",
+    "epoch",
+    "name",
+    "version",
+    "release",
+    "package_id"
+  ]
+}

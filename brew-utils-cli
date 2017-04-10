@@ -1,0 +1,101 @@
+#!/usr/bin/python
+
+from argparse import ArgumentParser, ONE_OR_MORE
+from brewutils.core import BrewBuild, BrewError, BrewPackage
+from json import dump
+from logging import getLogger
+from sys import stdout
+
+
+logger = getLogger(__name__)
+
+
+def _get_candidate_brew_packages(base_names, exact=True, no_suffix=True, no_prefix=False):
+    """
+    Name map for Brew packages that start or end with given base names
+
+    :param base_names: list
+    :param exact: bool, accept exact match
+    :param no_suffix: bool, accept package names that end with base_name
+    :param no_prefix: bool, accept package names that start with base_name
+    :return:
+    """
+    candidate_packages = {}
+    for name in base_names:
+        try:
+            packages = BrewPackage.find(name)
+        except BrewError as be:
+            logger.exception(be.message)
+            continue
+        if not packages:
+            logger.debug("Unable to find '*%s*' in Brew", name)
+            continue
+        # We accept exact matches, given name as prefix
+        # and given name as suffix. Anything else we ignore as
+        # an assumed coincidental naming collision.
+        exact_package = packages.exact
+        if exact and exact_package is not None:
+            candidate_packages[exact_package.name] = exact_package
+        if no_suffix:
+            for package in packages.with_suffix(None):
+                candidate_packages[package.name] = package
+        if no_prefix:
+            for package in packages.with_prefix(None):
+                candidate_packages[package.name] = package
+    return candidate_packages
+
+
+def _get_srpm_details(package, version, digest):
+    try:
+        builds = BrewBuild.get_for_package(package, version)
+    except BrewError as be:
+        msg = "Failed to retrieve {}-{} builds from Brew"
+        logger.exception(msg.format(package, version))
+        return
+    for build in builds:
+        summary = {
+            'package_name': package.name,
+            'epoch': build.epoch,
+            'release': build.release,
+            'version': build.version,
+            'patch_count': -1,
+            'modified_file_count': -1,
+            'modified_line_count': -1
+        }
+        patch = None
+        try:
+            patch = build.get_applied_patches(digest)
+        except Exception:
+            msg = "Failed checking for patches applied to {}"
+            logger.exception(msg.format(build.nvr))
+        else:
+            if patch['package']:
+                summary['patch_count'] = len(patch["patch_files"])
+                summary['modified_file_count'] = patch["diff"]["files"]
+                summary['modified_line_count'] = patch["diff"]["lines"]
+        yield summary, patch
+
+
+parser = ArgumentParser()
+parser.add_argument('-v', '--version', default=None, required=True,
+                    help='package version')
+parser.add_argument('-d', '--digest', default=None,
+                help='When inspecting sources in spec file, take only those with specified digest.')
+parser.add_argument('names', default=None, nargs=ONE_OR_MORE, metavar="name",
+                    help='package name')
+args = parser.parse_args()
+
+response = {}
+packages = _get_candidate_brew_packages(args.names)
+package_names = list(packages.keys())
+
+response['brew'] = []
+response['registered_srpms'] = []
+
+for package in packages.values():
+    for summary, detail in _get_srpm_details(package, args.version, args.digest):
+        response['registered_srpms'].append(summary)
+        if detail is not None:
+            response['brew'].append(detail)
+
+dump({'packages': package_names, 'response': response}, stdout, indent=4)
