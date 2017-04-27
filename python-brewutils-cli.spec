@@ -8,12 +8,12 @@
 
 Name:           python-%{srcname}
 Version:        1.0.2
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Brew Utilities CLI
 
-License:        GPLv2
-URL:            http://python-brewutils-cli/
-Source0:        http://python-brewutils-cli/brewutils-%{version}.tar.gz
+License:        ASL 2.0
+URL:            https://github.com/fabric8-analytics/brewutils
+Source0:        brewutils-%{version}.tar.gz
 
 BuildArch:      noarch
 
@@ -23,15 +23,23 @@ BuildArch:      noarch
 
 %package -n python2-%{srcname}
 Summary:        %{summary}
+
+%if 0%{?rhel}
+BuildRequires:  python-devel
+BuildRequires:  python-setuptools
+Requires:       python-devel
+%else
 %{?python_provide:%python_provide python2-%{srcname}}
 BuildRequires:  python2-devel
 Requires:       python2-devel
+%endif
 Requires:       nodejs-packaging
 Requires:       rpmdevtools
 Requires:       redhat-rpm-config
 Requires:       rpm-build
 Requires:       koji
-Requires:       python-requests >= 2.7.0
+# python-requests >= 2.7.0 ?
+Requires:       python-requests
 Requires:       python-jsonschema
 Requires:       python-unidiff
 
@@ -60,6 +68,9 @@ Python 2 version.
 
 
 %changelog
+* Thu Apr 27 2017 Jiri Popelka <jpopelka@redhat.com> - 1.0.2-2
+- Explicitly requires setuptools for epel
+
 * Fri Dec 09 2016 Nick Coghlan <ncoghlan@redhat.com> - 1.0.2-1
 - fix import error that was breaking patch analysis
 
