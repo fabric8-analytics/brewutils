@@ -20,6 +20,6 @@ Version is a mandatory argument, digest is optional.
 Two environmental variables can be used to change Brew URL's:
 
 ```
-export BREWHUB_URL='http://brewhub.devel.redhat.com/brewhub'
-export BREWPATH_URL='http://download.lab.bos.redhat.com/brewroot'
+export BREWHUB_URL='https://koji.fedoraproject.org/kojihub'
+export BREWPATH_URL='https://kojipkgs.fedoraproject.org'
 ```

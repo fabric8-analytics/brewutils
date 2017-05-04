@@ -13,5 +13,5 @@ setuptools.setup(
     description = 'Brew CLI Utilities',
     license = 'GNU/GPLv2',
     keywords = 'brew cli',
-    url = 'https://'
+    url = 'https://github.com/fabric8-analytics/brewutils'
 )
