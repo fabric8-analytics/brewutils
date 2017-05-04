@@ -49,6 +49,8 @@ Requires:       python-unidiff
 
 Python 2 version.
 
+# There's no Python 3 version because koji is still Python 2 only.
+
 %prep
 %autosetup -n %{srcname}-%{version}
 
